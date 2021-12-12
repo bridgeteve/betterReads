@@ -2,6 +2,8 @@ import React, { useEffect } from "react";
 import styled from "styled-components";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useNavigate } from "react-router";
+import { keyframes } from "styled-components";
+import { FiLoader } from "react-icons/fi";
 
 const Reviews = () => {
   let navigate = useNavigate();
@@ -30,13 +32,14 @@ const Reviews = () => {
     e.preventDefault();
     navigate(`/book/${param}`);
   };
+
   return (
     <Wrapper>
       <H2>Reviews</H2>
       <Description>
         View your reviews, collated here, for your convenience.
       </Description>
-      {reviews &&
+      {reviews ? (
         reviews.map((item) => {
           return (
             <Container>
@@ -56,7 +59,10 @@ const Reviews = () => {
               </Box2>
             </Container>
           );
-        })}
+        })
+      ) : (
+        <Loader></Loader>
+      )}
     </Wrapper>
   );
 };
@@ -64,11 +70,10 @@ const Reviews = () => {
 export default Reviews;
 const Wrapper = styled.div`
   margin-left: 25%;
-  margin-top: 3%;
 `;
 const Description = styled.p`
   margin-top: 5px;
-  margin-bottom: 10px;
+  margin-bottom: 25px;
 `;
 const H2 = styled.h2`
   color: #00a676;
@@ -111,3 +116,20 @@ const Review = styled.p`
   line-height: 1.3;
 `;
 const Img = styled.img``;
+
+const rotate = keyframes`
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+  `;
+const Loader = styled(FiLoader)`
+  animation: ${rotate} 2s infinite;
+  font-size: 40px;
+  margin-left: 35%;
+  margin-top: 30px;
+  margin-bottom: 30px;
+  color: #00a676;
+`;

@@ -4,13 +4,19 @@ import { BsPencilSquare } from "react-icons/bs";
 import { useAuth0 } from "@auth0/auth0-react";
 import { FiHeart } from "react-icons/fi";
 import { useEffect } from "react/cjs/react.development";
+import Tippy from "@tippy.js/react";
+import "tippy.js/dist/tippy.css";
+import "tippy.js/themes/light-border.css";
+import "./Tippy.css";
+import LikedBy from "./LikedBy";
 
 const SingleReview = (review) => {
   const reviewData = review.review;
-  console.log(reviewData);
+  const [ariaExpanded, setAriaExpanded] = React.useState(null);
   const [isLiked, setIsLiked] = React.useState(false);
   const { user } = useAuth0();
   const [numLikes, setNumLikes] = React.useState(null);
+  const [likers, setLikers] = React.useState(null);
 
   //check if currently signed in user has liked the review
   useEffect(() => {
@@ -18,6 +24,7 @@ const SingleReview = (review) => {
       setIsLiked(true);
     }
     setNumLikes(reviewData.likes.length);
+    setLikers(reviewData.likes);
   }, []);
 
   //if the current user has already liked the tweet, remove from likes array. else, push to likes array
@@ -70,7 +77,21 @@ const SingleReview = (review) => {
             <Button onClick={() => handleLike(reviewData.id)}>
               <Heart fill={isLiked ? "#00a676" : "transparent"} />
             </Button>
-            {numLikes > 0 ? <NumLikes>{numLikes}</NumLikes> : ""}
+            <Tippy
+              content={<LikedBy likers={likers} />}
+              placement="right"
+              animation="fade"
+              interactive={true}
+              arrow={true}
+              trigger="click"
+              appendTo="parent"
+              onMount={() => setAriaExpanded("true")}
+              onHide={() => setAriaExpanded("false")}
+            >
+              <LikedByButton aria-haspopup="true" aria-expanded={ariaExpanded}>
+                <NumLikes>{numLikes}</NumLikes>
+              </LikedByButton>
+            </Tippy>
           </Organize>
           <Button>
             <Pencil />
@@ -106,6 +127,8 @@ const FlexBox = styled.div`
 const NumLikes = styled.p`
   position: relative;
   bottom: 4px;
+  color: #00a676;
+  font-size: 18px;
 `;
 const Button = styled.button`
   background-color: transparent;
@@ -143,4 +166,13 @@ const Img = styled.img``;
 
 const By = styled.p`
   margin-top: 10px;
+`;
+
+const LikedByButton = styled.button`
+  background-color: transparent;
+  border: none;
+  &:hover {
+    cursor: pointer;
+    text-decoration: underline;
+  }
 `;

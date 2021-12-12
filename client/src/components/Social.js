@@ -3,6 +3,8 @@ import styled from "styled-components";
 import { useAuth0 } from "@auth0/auth0-react";
 import { BiSearchAlt2 } from "react-icons/bi";
 import FriendReview from "./FriendReview";
+import { keyframes } from "styled-components";
+import { FiLoader } from "react-icons/fi";
 
 const Social = () => {
   const { user } = useAuth0();
@@ -72,10 +74,13 @@ const Social = () => {
         )}
       </Div>
       <FriendArray>
-        {profile?.data &&
+        {profile?.data ? (
           profile.data.friends.map((friend, index) => {
             return <FriendReview idOfFriend={friend} />;
-          })}
+          })
+        ) : (
+          <Loader></Loader>
+        )}
       </FriendArray>
     </Wrapper>
   );
@@ -104,7 +109,7 @@ const Div = styled.div`
 const Input = styled.input`
   border: none;
   border-radius: 20px;
-  width: 300px;
+  width: 320px;
   margin-top: 30px;
 `;
 
@@ -141,4 +146,20 @@ const Search = styled(BiSearchAlt2)`
 const Button = styled.button`
   border: none;
   background-color: transparent;
+`;
+const rotate = keyframes`
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+  `;
+const Loader = styled(FiLoader)`
+  animation: ${rotate} 2s infinite;
+  font-size: 40px;
+  margin-left: 35%;
+  margin-top: 30px;
+  margin-bottom: 30px;
+  color: #00a676;
 `;

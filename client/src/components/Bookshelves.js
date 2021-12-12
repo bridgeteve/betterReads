@@ -339,7 +339,6 @@ export default Bookshelves;
 
 const Wrapper = styled.div`
   margin-left: 25%;
-  margin-top: 3%;
 `;
 const Img = styled.img`
   height: 150px;

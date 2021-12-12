@@ -7,7 +7,7 @@ const BookDetails = () => {
   //state variables
   const [bookDetails, setBookDetails] = React.useState(null);
 
-  //get individual book info--- endpoint is currently working in insomnia but not in app
+  //get individual book info
   useEffect(() => {
     fetch(
       `https://www.googleapis.com/books/v1/volumes/${volumeId}?key=AIzaSyCf0SpH3Or2vjVdpJZK5xsYz9pb6tS2kD8`
@@ -27,32 +27,52 @@ const BookDetails = () => {
   return (
     <>
       {bookDetails?.volumeInfo && (
-        <Wrapper>
-          <Div1>
-            <Category>{category}</Category>
-            <Img src={bookThumbnail} alt="book cover" />
-            <Isbn>ISBN: {isbn}</Isbn>
-            <GRating>Average Google Rating: {avgGoogleRating}/5 stars</GRating>
-          </Div1>
-          <Div2>
-            <Title>{title}</Title>
-            <Author>{author}</Author>
-            <Description
-              dangerouslySetInnerHTML={{ __html: description }}
-            ></Description>
-          </Div2>
-        </Wrapper>
+        <>
+          <Organize>
+            <H2>Book Details</H2>
+            <Descrip>More info on this title.</Descrip>
+          </Organize>
+          <Wrapper>
+            <Div1>
+              <Category>{category}</Category>
+              <Img src={bookThumbnail} alt="book cover" />
+              <Isbn>ISBN: {isbn}</Isbn>
+              <GRating>
+                Average Google Rating: {avgGoogleRating}/5 stars
+              </GRating>
+            </Div1>
+            <Div2>
+              <Title>{title}</Title>
+              <Author>{author}</Author>
+              <Description
+                dangerouslySetInnerHTML={{ __html: description }}
+              ></Description>
+            </Div2>
+          </Wrapper>
+        </>
       )}
     </>
   );
 };
 
 export default BookDetails;
+const Descrip = styled.p`
+  margin-top: 5px;
+  margin-bottom: 25px;
+`;
+const H2 = styled.h2`
+  color: #00a676;
+  margin-top: 30px;
+`;
+
+const Organize = styled.div`
+  margin-left: 25%;
+  max-width: fit-content;
+`;
 
 const Wrapper = styled.div`
   display: flex;
   margin-left: 25%;
-  margin-top: 70px;
   background-color: #f7f9f9;
 `;
 const Div1 = styled.div`
@@ -73,6 +93,7 @@ const Category = styled.h3`
   color: black;
   font-size: 20px;
   margin-bottom: 5px;
+  max-width: 200px;
 `;
 const Img = styled.img`
   height: 300px;
@@ -100,5 +121,6 @@ const Description = styled.div`
   font-family: "Poppins", sans-serif;
   margin-top: 10px;
   font-size: 18px;
-  line-height: 20px;
+  line-height: 1.5;
+  margin-bottom: 100px;
 `;
