@@ -18,6 +18,7 @@ const {
   getReviews,
   updateLikes,
   deleteLike,
+  addComment,
 } = require("./handlers");
 
 const app = express();
@@ -55,7 +56,9 @@ app.post("/api/addReview", addReview);
 app.put("/api/like/:id", updateLikes);
 //unlike a review
 app.put("/api/unlike/:id", deleteLike);
-//get numLikes on a given review
+
+//add a comment on a review
+app.put("/api/comment/:id", addComment);
 
 //get user
 app.get("/api/friend/:email", getFriend);

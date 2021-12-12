@@ -12,11 +12,14 @@ import LikedBy from "./LikedBy";
 
 const SingleReview = (review) => {
   const reviewData = review.review;
+  const { user } = useAuth0();
   const [ariaExpanded, setAriaExpanded] = React.useState(null);
   const [isLiked, setIsLiked] = React.useState(false);
-  const { user } = useAuth0();
   const [numLikes, setNumLikes] = React.useState(null);
   const [likers, setLikers] = React.useState(null);
+  const [flag, setFlag] = React.useState(false);
+  const [comment, setComment] = React.useState(null);
+  const [theComment, setTheComment] = React.useState(null);
 
   //check if currently signed in user has liked the review
   useEffect(() => {
@@ -54,6 +57,26 @@ const SingleReview = (review) => {
       setIsLiked(!isLiked);
       setNumLikes(numLikes - 1);
     }
+  };
+
+  const handleClick = () => {
+    setFlag(true);
+  };
+  const handleComment = (param) => {
+    fetch(`/api/comment/${param}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email: user?.email,
+        comment: comment,
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          setTheComment(data);
+        }),
+    });
   };
 
   return (
@@ -94,9 +117,31 @@ const SingleReview = (review) => {
             </Tippy>
           </Organize>
           <Button>
-            <Pencil />
+            <Pencil onClick={handleClick} />
           </Button>
         </Box3>
+        {flag ? (
+          <CommentField>
+            <form onSubmit={() => handleComment(reviewData.id)}>
+              <Input
+                type="text"
+                onChange={(e) => {
+                  setComment(e.target.value);
+                }}
+              ></Input>
+              <CommentButton type="submit">Comment</CommentButton>
+            </form>
+            {theComment ? (
+              <div>
+                <p>You said: {theComment.comment}</p>
+              </div>
+            ) : (
+              ""
+            )}
+          </CommentField>
+        ) : (
+          ""
+        )}
       </Container>
     </>
   );
@@ -111,6 +156,27 @@ const Container = styled.div`
   padding: 10px;
   width: 790px;
   margin-bottom: 20px;
+`;
+const Input = styled.input`
+  font-size: 18px;
+  width: 300px;
+  height: 30px;
+`;
+const CommentButton = styled.button`
+  background-color: #00a676;
+  border: none;
+  font-size: 18px;
+  margin-left: 10px;
+  padding: 5px;
+  border-radius: 15px;
+  &:hover {
+    cursor: pointer;
+  }
+`;
+const CommentField = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: right;
 `;
 const Box1 = styled.div``;
 const Box2 = styled.div`

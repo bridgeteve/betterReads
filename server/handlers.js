@@ -234,6 +234,25 @@ const deleteLike = async (req, res) => {
   client.close();
 };
 
+const addComment = async (req, res) => {
+  const client = new MongoClient(MONGO_URI, options);
+  await client.connect();
+  const db = client.db("betterReads");
+  const id = req.params.id;
+  await db.collection("reviews").findOneAndUpdate(
+    { id: id },
+    {
+      $push: {
+        comments: { comment: req.body.comment, email: req.body.email },
+      },
+    }
+  );
+  res
+    .status(200)
+    .json({ status: 200, message: "all good", comment: req.body.comment });
+  client.close();
+};
+
 module.exports = {
   updateCurrentlyReading,
   updateToBeRead,
@@ -251,4 +270,5 @@ module.exports = {
   getReviews,
   updateLikes,
   deleteLike,
+  addComment,
 };
