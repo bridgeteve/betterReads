@@ -8,22 +8,15 @@ import {
   BsHouse,
 } from "react-icons/bs";
 import { NavLink } from "react-router-dom";
-import "tippy.js/dist/tippy.css";
-import "tippy.js/themes/light-border.css";
-import "./Tippy.css";
-import Tippy from "@tippy.js/react";
-import UpdateDropdown from "./UpdateDropdown";
 import { useAuth0 } from "@auth0/auth0-react";
 import { keyframes } from "styled-components";
 import { FiLoader } from "react-icons/fi";
-require("dotenv").config();
-const { API_KEY } = process.env;
 
 const Sidebar = () => {
-  const [ariaExpanded, setAriaExpanded] = React.useState(null);
   const [current, setCurrent] = React.useState([]);
   const [load, setLoad] = React.useState(false);
   const { user } = useAuth0();
+  const volumeId = current[0]?.id;
 
   const pushCurrent = (param) => {
     //create empty array
@@ -67,8 +60,27 @@ const Sidebar = () => {
         });
   }, [user]);
 
-  const volumeId = current[0]?.id;
-  console.log(current[0], "huh");
+  const pushToRead = () => {
+    fetch("/api/move", {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        volumeId: volumeId,
+        email: user.email,
+      }),
+    });
+    let change = current.filter((item) => {
+      console.log(item.id);
+      console.log(volumeId);
+      return item.id !== volumeId;
+    });
+    console.log(change);
+    setCurrent(change);
+    return current;
+  };
+
   return (
     <Links>
       <Span>
@@ -105,21 +117,7 @@ const Sidebar = () => {
             )}
           </div>
         )}
-        <Tippy
-          content={<UpdateDropdown volumeId={volumeId} />}
-          interactive={true}
-          placement="right"
-          animation="fade"
-          arrow={true}
-          trigger="click"
-          appendTo="parent"
-          onMount={() => setAriaExpanded("true")}
-          onHide={() => setAriaExpanded("false")}
-        >
-          <UpdateButton aria-haspopup="true" aria-expanded={ariaExpanded}>
-            Update Progress
-          </UpdateButton>
-        </Tippy>
+        <UpdateButton onClick={pushToRead}>I'm Done!</UpdateButton>
       </CurrentlyReading>
     </Links>
   );

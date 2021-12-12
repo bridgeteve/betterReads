@@ -121,7 +121,7 @@ const updateAndDelete = async (req, res) => {
   const client = new MongoClient(MONGO_URI, options);
   await client.connect();
   const db = client.db("betterReads");
-  const { volumeId } = req.body.volumeId;
+  const volumeId = req.body.volumeId;
   await db
     .collection("users")
     .findOneAndUpdate({ email: req.body.email }, { $push: { Read: volumeId } });
@@ -188,6 +188,8 @@ const addReview = async (req, res) => {
     id: req.body.id,
     thumbnail: req.body.thumbnail,
     title: req.body.title,
+    likes: [],
+    comments: [],
   };
   await db.collection("reviews").insertOne(newReview);
   res
@@ -208,6 +210,30 @@ const getReviews = async (req, res) => {
   client.close();
 };
 
+const updateLikes = async (req, res) => {
+  const client = new MongoClient(MONGO_URI, options);
+  await client.connect();
+  const db = client.db("betterReads");
+  const id = req.params.id;
+  await db
+    .collection("reviews")
+    .findOneAndUpdate({ id: id }, { $push: { likes: req.body.email } });
+  res.status(200).json({ status: 200, message: "all good" });
+  client.close();
+};
+
+const deleteLike = async (req, res) => {
+  const client = new MongoClient(MONGO_URI, options);
+  await client.connect();
+  const db = client.db("betterReads");
+  const id = req.params.id;
+  await db
+    .collection("reviews")
+    .findOneAndUpdate({ id: id }, { $pull: { likes: req.body.email } });
+  res.status(200).json({ status: 200, message: "all good" });
+  client.close();
+};
+
 module.exports = {
   updateCurrentlyReading,
   updateToBeRead,
@@ -223,4 +249,6 @@ module.exports = {
   updateAndDelete,
   addReview,
   getReviews,
+  updateLikes,
+  deleteLike,
 };

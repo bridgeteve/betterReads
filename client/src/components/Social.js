@@ -44,8 +44,6 @@ const Social = () => {
         });
   }, [user]);
 
-  console.log(profile?.data, "profile");
-
   return (
     <Wrapper>
       <H2>Social</H2>

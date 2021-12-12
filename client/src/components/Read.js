@@ -76,7 +76,6 @@ const Read = () => {
 
   //submit the review as a new object in "reviews" collection in mongoDB
   const handleSubmit = (volumeId, modalContent, title) => {
-    console.log(volumeId, "something?"); // correct
     fetch("/api/addReview", {
       method: "POST",
       headers: {

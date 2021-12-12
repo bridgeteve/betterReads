@@ -16,6 +16,8 @@ const {
   deleteFromShelf,
   addReview,
   getReviews,
+  updateLikes,
+  deleteLike,
 } = require("./handlers");
 
 const app = express();
@@ -48,6 +50,12 @@ app.delete("/api/remove", deleteFromShelf);
 
 //post a review, send it to the reviews collection
 app.post("/api/addReview", addReview);
+
+//like a review
+app.put("/api/like/:id", updateLikes);
+//unlike a review
+app.put("/api/unlike/:id", deleteLike);
+//get numLikes on a given review
 
 //get user
 app.get("/api/friend/:email", getFriend);
