@@ -20,9 +20,9 @@ const About = () => {
           experience. betterReads is centered around a community of readers who
           wish to catalogue their personal reading habits and stay up to date
           with what their friends are reading. Our founder, Bridget, created our
-          website and serves as curator. All business inquiries, including
-          inquires on how to serve as a featured curator, should be directed to
-          bridget.walsh@mail.mcgill.ca.
+          website using React, Node.js, MongoDB, styled-components, and Auth0.
+          All business inquiries, including inquires on how to hire Bridget,
+          should be directed to bridget.walsh@mail.mcgill.ca.
         </Description>
       </Div>
     </Wrapper>

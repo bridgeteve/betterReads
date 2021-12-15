@@ -29,7 +29,7 @@ const Read = () => {
     for (let i = 0; i < param.length; i++) {
       read.push(
         fetch(
-          `https://www.googleapis.com/books/v1/volumes/${param[i]}?key=AIzaSyCf0SpH3Or2vjVdpJZK5xsYz9pb6tS2kD8`
+          `https://www.googleapis.com/books/v1/volumes/${param[i]}?key=${process.env.REACT_APP_APIKEY}`
         )
           .then((res) => res.json())
           .then((info) => {
@@ -93,6 +93,29 @@ const Read = () => {
     handleClose();
   };
 
+  const handleDelete = (e, volumeId, field) => {
+    e.preventDefault();
+    fetch("/api/remove", {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email: user.email,
+        shelf: field,
+        volumeId: volumeId,
+      }),
+    });
+
+    if (field === "Read") {
+      let change = alreadyRead.filter((item) => {
+        return item.id !== volumeId;
+      });
+      setAlreadyRead(change);
+      return alreadyRead;
+    }
+  };
+
   return (
     <Wrapper>
       <H2>Read</H2>
@@ -101,22 +124,27 @@ const Read = () => {
         <Loader></Loader>
       ) : (
         <div>
-          {alreadyRead.length > 0 &&
-            alreadyRead.map((obj) => {
-              let thumbnail = obj?.volumeInfo?.imageLinks.thumbnail;
-              let volumeId = obj?.id;
-              let title = obj?.volumeInfo.title;
-              return (
-                <>
-                  <Button
-                    type="button"
-                    onClick={() => handleOpen(thumbnail, volumeId, title)}
-                  >
-                    <Img src={thumbnail} alt="cover" />
-                  </Button>
-                </>
-              );
-            })}
+          <BooksDiv>
+            {alreadyRead.length > 0 &&
+              alreadyRead.map((obj) => {
+                let thumbnail = obj?.volumeInfo?.imageLinks.thumbnail;
+                let volumeId = obj?.id;
+                let title = obj?.volumeInfo.title;
+                return (
+                  <Div>
+                    <Button
+                      type="button"
+                      onClick={() => handleOpen(thumbnail, volumeId, title)}
+                    >
+                      <Img src={thumbnail} alt="cover" />
+                    </Button>
+                    <Remove onClick={(e) => handleDelete(e, volumeId, "Read")}>
+                      Remove
+                    </Remove>
+                  </Div>
+                );
+              })}
+          </BooksDiv>
           <Dialog
             open={open}
             onClose={handleClose}
@@ -184,6 +212,16 @@ const Input = styled.input`
 const Organize = styled.div`
   display: flex;
 `;
+const BooksDiv = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+`;
+const Div = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 98px;
+  margin: 5px;
+`;
 const SubmitButton = styled.button`
   border: none;
   background-color: #00a676;
@@ -233,4 +271,16 @@ const ModalLayout = styled.div`
 const Span = styled.span`
   font-family: "Outfit", sans-serif;
   margin-top: 15px;
+`;
+const Remove = styled.button`
+  border: none;
+  background-color: #00a676;
+  border-radius: 15px;
+  color: #f7f9f9;
+  font-size: 15px;
+  margin-top: 4px;
+  margin-left: 4px;
+  &:hover {
+    cursor: pointer;
+  }
 `;

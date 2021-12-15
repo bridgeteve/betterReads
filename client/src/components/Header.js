@@ -15,12 +15,11 @@ const Header = ({ setGetBooks, loginWithPopup, logout, user }) => {
   const handleSearch = (e) => {
     e.preventDefault();
     fetch(
-      `https://www.googleapis.com/books/v1/volumes?q=${searchTerms}&key=AIzaSyCf0SpH3Or2vjVdpJZK5xsYz9pb6tS2kD8`
+      `https://www.googleapis.com/books/v1/volumes?q=${searchTerms}&maxResults=40&key=${process.env.REACT_APP_APIKEY}`
     )
       .then((res) => res.json())
       .then((data) => {
         setGetBooks(data);
-        console.log(data, "books");
       });
     handleHome();
   };
@@ -88,6 +87,8 @@ const AnotherButton = styled.button`
   font-size: 15px;
   padding: 15px;
   width: 150px;
+  border: solid;
+  border-color: transparent;
   &:hover {
     border: solid;
     border-color: #f7f9f9;

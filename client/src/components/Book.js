@@ -23,7 +23,6 @@ const Book = ({ thumbnail, volumeId }) => {
                 <Img src={thumbnail} alt="book cover" />
               </ImgButton>
               <Tippy
-                content={<DropdownContent volumeId={volumeId} />}
                 interactive={true}
                 placement="right"
                 animation="fade"
@@ -32,6 +31,14 @@ const Book = ({ thumbnail, volumeId }) => {
                 appendTo="parent"
                 onMount={() => setAriaExpanded("true")}
                 onHide={() => setAriaExpanded("false")}
+                id="123"
+                content={
+                  <DropdownContent
+                    volumeId={volumeId}
+                    aria-expanded={ariaExpanded}
+                    setAriaExpanded={setAriaExpanded}
+                  />
+                }
               >
                 <Button aria-haspopup="true" aria-expanded={ariaExpanded}>
                   Add to shelf

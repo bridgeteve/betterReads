@@ -9,6 +9,8 @@ import "tippy.js/dist/tippy.css";
 import "tippy.js/themes/light-border.css";
 import "./Tippy.css";
 import LikedBy from "./LikedBy";
+import EachComment from "./EachComment";
+import { useNavigate } from "react-router";
 
 const SingleReview = (review) => {
   const reviewData = review.review;
@@ -20,6 +22,8 @@ const SingleReview = (review) => {
   const [flag, setFlag] = React.useState(false);
   const [comment, setComment] = React.useState(null);
   const [theComment, setTheComment] = React.useState(null);
+  const [existingComments, setExistingComments] = React.useState(null);
+  const navigate = useNavigate();
 
   //check if currently signed in user has liked the review
   useEffect(() => {
@@ -59,10 +63,21 @@ const SingleReview = (review) => {
     }
   };
 
-  const handleClick = () => {
-    setFlag(true);
+  //toggle flag to open and close comments box + get all existing comments on a review
+  const handleClick = (e, param) => {
+    e.preventDefault();
+    setFlag(!flag);
+    fetch(`/api/allComments/${param}`)
+      .then((res) => res.json())
+      .then((info) => {
+        setExistingComments(info.result.comments);
+      });
   };
-  const handleComment = (param) => {
+
+  //send the new comment to the DB and set the comment to a state
+  //variable to render it on the page after its submitted
+  const handleComment = (e, param) => {
+    e.preventDefault();
     fetch(`/api/comment/${param}`, {
       method: "PUT",
       headers: {
@@ -71,12 +86,17 @@ const SingleReview = (review) => {
       body: JSON.stringify({
         email: user?.email,
         comment: comment,
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          setTheComment(data);
-        }),
-    });
+      }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setTheComment(data.comment);
+      });
+  };
+
+  const handleBookDetails = (e, param) => {
+    e.preventDefault();
+    navigate(`/book/${param}`);
   };
 
   return (
@@ -84,10 +104,18 @@ const SingleReview = (review) => {
       <Container>
         <FlexBox>
           <Box1>
-            <Img src={reviewData.thumbnail} alt="book cover" />
+            <BookDetailsButton
+              onClick={(e) => handleBookDetails(e, reviewData.id)}
+            >
+              <Img src={reviewData.thumbnail} alt="book cover" />
+            </BookDetailsButton>
           </Box1>
           <Box2>
-            <Title>{reviewData.title}</Title>
+            <BookDetailsButton
+              onClick={(e) => handleBookDetails(e, reviewData.id)}
+            >
+              <Title>{reviewData.title}</Title>
+            </BookDetailsButton>
             <Rating>
               <strong>Rating: </strong> {reviewData.rating}/10
             </Rating>
@@ -117,28 +145,42 @@ const SingleReview = (review) => {
             </Tippy>
           </Organize>
           <Button>
-            <Pencil onClick={handleClick} />
+            <Pencil onClick={(e) => handleClick(e, reviewData.id)} />
           </Button>
         </Box3>
         {flag ? (
-          <CommentField>
-            <form onSubmit={() => handleComment(reviewData.id)}>
-              <Input
-                type="text"
-                onChange={(e) => {
-                  setComment(e.target.value);
-                }}
-              ></Input>
-              <CommentButton type="submit">Comment</CommentButton>
-            </form>
-            {theComment ? (
-              <div>
-                <p>You said: {theComment.comment}</p>
-              </div>
-            ) : (
-              ""
-            )}
-          </CommentField>
+          <>
+            <CommentField>
+              <form onSubmit={(e) => handleComment(e, reviewData.id)}>
+                <CommentButton type="submit">Comment</CommentButton>
+                <Input
+                  type="text"
+                  onChange={(e) => {
+                    setComment(e.target.value);
+                  }}
+                ></Input>
+              </form>
+            </CommentField>
+            <CommentBox>
+              {theComment ? (
+                <NewComment>
+                  <Commenter>{user.email}: </Commenter>
+                  <Comment>{theComment}</Comment>
+                </NewComment>
+              ) : (
+                ""
+              )}
+              {existingComments
+                ? existingComments.map((item) => {
+                    const comment = item.comment;
+                    const commenter = item.email;
+                    return (
+                      <EachComment comment={comment} commenter={commenter} />
+                    );
+                  })
+                : ""}
+            </CommentBox>
+          </>
         ) : (
           ""
         )}
@@ -157,6 +199,39 @@ const Container = styled.div`
   width: 790px;
   margin-bottom: 20px;
 `;
+const BookDetailsButton = styled.button`
+  border: none;
+  background-color: transparent;
+  color: black;
+  &:hover {
+    cursor: pointer;
+    text-decoration: underline;
+  }
+`;
+const NewComment = styled.div`
+  background-color: #00a676;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  padding: 10px;
+  border-radius: 15px;
+  width: fit-content;
+  max-width: 770px;
+`;
+const Comment = styled.p`
+  font-size: 17px;
+  color: white;
+`;
+const Commenter = styled.p`
+  font-size: 14px;
+  color: white;
+  margin-bottom: 5px;
+  font-style: italic;
+`;
+const CommentBox = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
 const Input = styled.input`
   font-size: 18px;
   width: 300px;
@@ -166,7 +241,7 @@ const CommentButton = styled.button`
   background-color: #00a676;
   border: none;
   font-size: 18px;
-  margin-left: 10px;
+  margin-right: 10px;
   padding: 5px;
   border-radius: 15px;
   &:hover {
@@ -176,7 +251,7 @@ const CommentButton = styled.button`
 const CommentField = styled.div`
   display: flex;
   align-items: center;
-  justify-content: right;
+  justify-content: left;
 `;
 const Box1 = styled.div``;
 const Box2 = styled.div`

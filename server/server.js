@@ -19,6 +19,8 @@ const {
   updateLikes,
   deleteLike,
   addComment,
+  getComments,
+  updateReview,
 } = require("./handlers");
 
 const app = express();
@@ -51,6 +53,8 @@ app.delete("/api/remove", deleteFromShelf);
 
 //post a review, send it to the reviews collection
 app.post("/api/addReview", addReview);
+//update a review
+app.put("/api/updateReview", updateReview);
 
 //like a review
 app.put("/api/like/:id", updateLikes);
@@ -59,6 +63,8 @@ app.put("/api/unlike/:id", deleteLike);
 
 //add a comment on a review
 app.put("/api/comment/:id", addComment);
+//get all comments on a review
+app.get("/api/allComments/:id", getComments);
 
 //get user
 app.get("/api/friend/:email", getFriend);

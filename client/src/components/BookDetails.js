@@ -1,16 +1,22 @@
 import React, { useEffect } from "react";
 import styled from "styled-components";
 import { useParams } from "react-router";
+import Tippy from "@tippy.js/react";
+import DropdownContent from "./DropdownContent";
+import "tippy.js/dist/tippy.css";
+import "tippy.js/themes/light-border.css";
+import "./Tippy.css";
 
 const BookDetails = () => {
   const { volumeId } = useParams();
   //state variables
   const [bookDetails, setBookDetails] = React.useState(null);
+  const [ariaExpanded, setAriaExpanded] = React.useState(null);
 
   //get individual book info
   useEffect(() => {
     fetch(
-      `https://www.googleapis.com/books/v1/volumes/${volumeId}?key=AIzaSyCf0SpH3Or2vjVdpJZK5xsYz9pb6tS2kD8`
+      `https://www.googleapis.com/books/v1/volumes/${volumeId}?key=${process.env.REACT_APP_APIKEY}`
     )
       .then((res) => res.json())
       .then((info) => {
@@ -19,7 +25,7 @@ const BookDetails = () => {
   }, [volumeId]);
   const author = bookDetails?.volumeInfo.authors[0];
   const bookThumbnail = bookDetails?.volumeInfo.imageLinks?.thumbnail;
-  const category = bookDetails?.volumeInfo.categories[0];
+  const category = bookDetails?.volumeInfo.categories?.[0];
   const description = bookDetails?.volumeInfo.description;
   const isbn = bookDetails?.volumeInfo.industryIdentifiers[1].identifier;
   const title = bookDetails?.volumeInfo.title;
@@ -40,6 +46,28 @@ const BookDetails = () => {
               <GRating>
                 Average Google Rating: {avgGoogleRating}/5 stars
               </GRating>
+              <Tippy
+                interactive={true}
+                placement="right"
+                animation="fade"
+                arrow={true}
+                trigger="click"
+                appendTo="parent"
+                onMount={() => setAriaExpanded("true")}
+                onHide={() => setAriaExpanded("false")}
+                content={
+                  <DropdownContent
+                    volumeId={volumeId}
+                    aria-expanded={ariaExpanded}
+                    setAriaExpanded={setAriaExpanded}
+                    onHide
+                  />
+                }
+              >
+                <Add aria-haspopup="true" aria-expanded={ariaExpanded}>
+                  Add to Shelf
+                </Add>
+              </Tippy>
             </Div1>
             <Div2>
               <Title>{title}</Title>
@@ -64,7 +92,17 @@ const H2 = styled.h2`
   color: #00a676;
   margin-top: 30px;
 `;
-
+const Add = styled.button`
+  border: none;
+  border-radius: 15px;
+  background-color: #00a676;
+  margin-top: 10px;
+  font-size: 18px;
+  padding: 10px;
+  &:hover {
+    cursor: pointer;
+  }
+`;
 const Organize = styled.div`
   margin-left: 25%;
   max-width: fit-content;

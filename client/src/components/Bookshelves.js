@@ -20,6 +20,11 @@ const Bookshelves = () => {
   const [toBeRead, setToBeRead] = React.useState([]);
   const [alreadyRead, setAlreadyRead] = React.useState([]);
 
+  const [numRead, setNumRead] = React.useState(11);
+  const [numCurrent, setNumCurrent] = React.useState(11);
+  const [numToBeRead, setNumToBeRead] = React.useState(11);
+  const [numFav, setNumFav] = React.useState(11);
+
   //FUNCTIONS
   //for currently reading
   const pushCurrent = (param) => {
@@ -29,7 +34,7 @@ const Bookshelves = () => {
     for (let i = 0; i < param.length; i++) {
       CR.push(
         fetch(
-          `https://www.googleapis.com/books/v1/volumes/${param[i]}?key=AIzaSyCf0SpH3Or2vjVdpJZK5xsYz9pb6tS2kD8`
+          `https://www.googleapis.com/books/v1/volumes/${param[i]}?key=${process.env.REACT_APP_APIKEY}`
         )
           .then((res) => res.json())
           .then((data) => {
@@ -49,7 +54,7 @@ const Bookshelves = () => {
     for (let i = 0; i < param.length; i++) {
       favs.push(
         fetch(
-          `https://www.googleapis.com/books/v1/volumes/${param[i]}?key=AIzaSyCf0SpH3Or2vjVdpJZK5xsYz9pb6tS2kD8`
+          `https://www.googleapis.com/books/v1/volumes/${param[i]}?key=${process.env.REACT_APP_APIKEY}`
         )
           .then((res) => res.json())
           .then((info) => {
@@ -67,7 +72,7 @@ const Bookshelves = () => {
     for (let i = 0; i < param.length; i++) {
       read.push(
         fetch(
-          `https://www.googleapis.com/books/v1/volumes/${param[i]}?key=AIzaSyCf0SpH3Or2vjVdpJZK5xsYz9pb6tS2kD8`
+          `https://www.googleapis.com/books/v1/volumes/${param[i]}?key=${process.env.REACT_APP_APIKEY}`
         )
           .then((res) => res.json())
           .then((info) => {
@@ -86,7 +91,7 @@ const Bookshelves = () => {
     for (let i = 0; i < param.length; i++) {
       tbr.push(
         fetch(
-          `https://www.googleapis.com/books/v1/volumes/${param[i]}?key=AIzaSyCf0SpH3Or2vjVdpJZK5xsYz9pb6tS2kD8`
+          `https://www.googleapis.com/books/v1/volumes/${param[i]}?key=${process.env.REACT_APP_APIKEY}`
         )
           .then((res) => res.json())
           .then((info) => {
@@ -229,7 +234,13 @@ const Bookshelves = () => {
     }
   };
   const handleRead = () => navigate("/read");
-  console.log(alreadyRead);
+  const handleFav = () => navigate("/fav");
+  const handleToBeRead = () => navigate("/tbr");
+
+  const handleBookDetails = (e, param) => {
+    e.preventDefault();
+    navigate(`/book/${param}`);
+  };
   return (
     <Wrapper>
       <H2>Bookshelves</H2>
@@ -244,18 +255,27 @@ const Bookshelves = () => {
         ) : (
           <BooksDiv>
             {alreadyRead.length > 0 &&
-              alreadyRead.map((obj) => {
-                let thumbnail = obj?.volumeInfo?.imageLinks.thumbnail;
-                let volumeId = obj?.id;
-                return (
-                  <BookDiv>
-                    <Img src={thumbnail} alt="cover" />
-                    <Remove onClick={(e) => handleDelete(e, volumeId, "Read")}>
-                      Remove
-                    </Remove>
-                  </BookDiv>
-                );
-              })}
+              alreadyRead
+                .slice(0, numRead ? numRead : alreadyRead.length)
+                .map((obj) => {
+                  let thumbnail = obj?.volumeInfo?.imageLinks.thumbnail;
+                  let volumeId = obj?.id;
+                  return (
+                    <BookDiv>
+                      <BookDetailsButton
+                        onClick={(e) => handleBookDetails(e, volumeId)}
+                      >
+                        <Img src={thumbnail} alt="cover" />
+                      </BookDetailsButton>
+                      <Remove
+                        onClick={(e) => handleDelete(e, volumeId, "Read")}
+                      >
+                        Remove
+                      </Remove>
+                    </BookDiv>
+                  );
+                })}
+            {alreadyRead.length ? <More onClick={handleRead}>More +</More> : ""}
           </BooksDiv>
         )}
       </Container>
@@ -266,65 +286,96 @@ const Bookshelves = () => {
         ) : (
           <BooksDiv>
             {current.length > 0 &&
-              current.map((obj) => {
-                let thumbnail = obj?.volumeInfo?.imageLinks.thumbnail;
-                let volumeId = obj?.id;
-                return (
-                  <BookDiv>
-                    <Img src={thumbnail} alt="cover" />
-                    <Remove
-                      onClick={(e) =>
-                        handleDelete(e, volumeId, "currentlyReading")
-                      }
-                    >
-                      Remove
-                    </Remove>
-                  </BookDiv>
-                );
-              })}
+              current
+                .slice(0, numCurrent ? numCurrent : current.length)
+                .map((obj) => {
+                  let thumbnail = obj?.volumeInfo?.imageLinks.thumbnail;
+                  let volumeId = obj?.id;
+                  return (
+                    <BookDiv>
+                      <BookDetailsButton
+                        onClick={(e) => handleBookDetails(e, volumeId)}
+                      >
+                        <Img src={thumbnail} alt="cover" />
+                      </BookDetailsButton>
+                      <Remove
+                        onClick={(e) =>
+                          handleDelete(e, volumeId, "currentlyReading")
+                        }
+                      >
+                        Remove
+                      </Remove>
+                      {current.length === 11 ? (
+                        <More onClick={handleRead}>More +</More>
+                      ) : (
+                        ""
+                      )}
+                    </BookDiv>
+                  );
+                })}
           </BooksDiv>
         )}
       </Container>
       <Container>
-        <ShelfTitle>To Be Read</ShelfTitle>
+        <ShelfTitle onClick={handleToBeRead}>To Be Read</ShelfTitle>
         {loader ? (
           <Loader></Loader>
         ) : (
           <BooksDiv>
             {toBeRead.length > 0 &&
-              toBeRead.map((obj) => {
-                let thumbnail = obj?.volumeInfo?.imageLinks.thumbnail;
-                let volumeId = obj?.id;
-                return (
-                  <BookDiv>
-                    <Img src={thumbnail} alt="cover" />
-                    <Remove onClick={(e) => handleDelete(e, volumeId, "TBR")}>
-                      Remove
-                    </Remove>
-                  </BookDiv>
-                );
-              })}
+              toBeRead
+                .slice(0, numToBeRead ? numToBeRead : toBeRead.length)
+                .map((obj) => {
+                  let thumbnail = obj?.volumeInfo?.imageLinks.thumbnail;
+                  let volumeId = obj?.id;
+                  return (
+                    <BookDiv>
+                      <BookDetailsButton
+                        onClick={(e) => handleBookDetails(e, volumeId)}
+                      >
+                        <Img src={thumbnail} alt="cover" />
+                      </BookDetailsButton>
+                      <Remove onClick={(e) => handleDelete(e, volumeId, "TBR")}>
+                        Remove
+                      </Remove>
+                      {toBeRead.length === 11 ? (
+                        <More onClick={handleToBeRead}>More +</More>
+                      ) : (
+                        ""
+                      )}
+                    </BookDiv>
+                  );
+                })}
           </BooksDiv>
         )}
       </Container>
       <Container>
-        <ShelfTitle>Favorites</ShelfTitle>
+        <ShelfTitle onClick={handleFav}>Favorites</ShelfTitle>
         {wait ? (
           <Loader></Loader>
         ) : (
           <BooksDiv>
             {fav.length > 0 &&
-              fav.map((obj) => {
+              fav.slice(0, numFav ? numFav : fav.length).map((obj) => {
                 let thumbnail = obj?.volumeInfo?.imageLinks.thumbnail;
                 let volumeId = obj?.id;
                 return (
                   <BookDiv>
-                    <Img src={thumbnail} alt="cover" />
+                    <BookDetailsButton
+                      onClick={(e) => handleBookDetails(e, volumeId)}
+                    >
+                      <Img src={thumbnail} alt="cover" />
+                    </BookDetailsButton>
                     <Remove
                       onClick={(e) => handleDelete(e, volumeId, "Favorites")}
                     >
                       Remove
                     </Remove>
+                    {fav.length === 11 ? (
+                      <More onClick={handleFav}>More +</More>
+                    ) : (
+                      ""
+                    )}
                   </BookDiv>
                 );
               })}
@@ -336,10 +387,33 @@ const Bookshelves = () => {
 };
 
 export default Bookshelves;
+const fadeIn = keyframes`
+  from {
+   opacity: 0
+  }
+  to {
+    opacity: 1;
+  }
+  `;
 
 const Wrapper = styled.div`
   margin-left: 25%;
+  animation: ${fadeIn} 2s;
 `;
+
+const More = styled.button`
+  height: 150px;
+  width: 100px;
+  background-color: #00a676;
+  border: none;
+  margin-top: 11px;
+  position: relative;
+  right: -16px;
+  &:hover {
+    cursor: pointer;
+  }
+`;
+
 const Img = styled.img`
   height: 150px;
   margin-top: 5px;
@@ -363,6 +437,7 @@ const Remove = styled.button`
   color: #f7f9f9;
   font-size: 15px;
   margin-top: 4px;
+  margin-left: 4px;
   &:hover {
     cursor: pointer;
   }
@@ -417,4 +492,13 @@ const Loader = styled(FiLoader)`
   margin-left: 300px;
   margin-top: 40px;
   color: #00a676;
+`;
+const BookDetailsButton = styled.button`
+  border: none;
+  background-color: transparent;
+  color: black;
+  &:hover {
+    cursor: pointer;
+    text-decoration: underline;
+  }
 `;

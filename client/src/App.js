@@ -16,6 +16,8 @@ import About from "./components/About";
 import GlobalStyles from "./components/GlobalStyles";
 import Reviews from "./components/Reviews";
 import Read from "./components/Read";
+import Favorites from "./components/Favorites";
+import ToBeRead from "./components/ToBeRead";
 
 const App = () => {
   const [getBooks, setGetBooks] = React.useState(null);
@@ -45,6 +47,8 @@ const App = () => {
           <Route path="/about" element={<About />} />
           <Route path="/reviews" element={<Reviews />} />
           <Route path="/read" element={<Read />} />
+          <Route path="/fav" element={<Favorites />} />
+          <Route path="/tbr" element={<ToBeRead />} />
         </Routes>
         <Footer />
       </Main>

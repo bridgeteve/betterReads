@@ -88,8 +88,18 @@ const Social = () => {
 
 export default Social;
 
+const fadeIn = keyframes`
+  from {
+   opacity: 0
+  }
+  to {
+    opacity: 1;
+  }
+  `;
+
 const Wrapper = styled.div`
   margin-left: 25%;
+  animation: ${fadeIn} 2s;
 `;
 const FriendArray = styled.div`
   margin-top: 50px;

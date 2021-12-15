@@ -11,12 +11,14 @@ import { NavLink } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
 import { keyframes } from "styled-components";
 import { FiLoader } from "react-icons/fi";
+import { useNavigate } from "react-router";
 
 const Sidebar = () => {
   const [current, setCurrent] = React.useState([]);
   const [load, setLoad] = React.useState(false);
   const { user } = useAuth0();
   const volumeId = current[0]?.id;
+  const navigate = useNavigate();
 
   const pushCurrent = (param) => {
     //create empty array
@@ -25,7 +27,7 @@ const Sidebar = () => {
     for (let i = 0; i < param.length; i++) {
       CR.push(
         fetch(
-          `https://www.googleapis.com/books/v1/volumes/${param[i]}?key=AIzaSyCf0SpH3Or2vjVdpJZK5xsYz9pb6tS2kD8`
+          `https://www.googleapis.com/books/v1/volumes/${param[i]}?key=${process.env.REACT_APP_APIKEY}`
         )
           .then((res) => res.json())
           .then((data) => {
@@ -80,7 +82,10 @@ const Sidebar = () => {
     setCurrent(change);
     return current;
   };
-
+  const handleBookDetails = (e, param) => {
+    e.preventDefault();
+    navigate(`/book/${param}`);
+  };
   return (
     <Links>
       <Span>
@@ -110,10 +115,12 @@ const Sidebar = () => {
         ) : (
           <div>
             {current.length > 0 && (
-              <Img
-                src={current[0]?.volumeInfo?.imageLinks.thumbnail}
-                alt="cover"
-              />
+              <Button onClick={(e) => handleBookDetails(e, current[0]?.id)}>
+                <Img
+                  src={current[0]?.volumeInfo?.imageLinks.thumbnail}
+                  alt="cover"
+                />
+              </Button>
             )}
           </div>
         )}
@@ -133,6 +140,13 @@ const Links = styled.div`
   position: absolute;
   top: 120px;
   background-color: #f7f9f9;
+`;
+const Button = styled.button`
+  border: none;
+  background-color: transparent;
+  &:hover {
+    cursor: pointer;
+  }
 `;
 const UpdateButton = styled.button`
   border: none;
@@ -200,18 +214,6 @@ const BookshelfIcon = styled(BsBookshelf)`
 `;
 const Bookmark = styled(BsBookmarkCheck)`
   margin-right: 20px;
-`;
-const Button = styled.button`
-  border-radius: 20px;
-  background-color: #00a676;
-  border: none;
-  padding: 10px;
-  color: white;
-  font-family: sans-serif;
-  font-weight: bold;
-  font-size: 20px;
-  margin-left: 40px;
-  width: 200px;
 `;
 const rotate = keyframes`
   from {
